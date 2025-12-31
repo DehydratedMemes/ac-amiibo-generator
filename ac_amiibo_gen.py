@@ -214,7 +214,20 @@ def main():
 
     translations = []
     if locale != "USen":
-        translations = download_json(VILLAGERS_URL)
+        # Try local file first
+        local_db = os.path.join(os.path.dirname(__file__), "villagers.json")
+        if os.path.exists(local_db):
+            print(f"[-] Loading translation data from local file: {local_db}")
+            try:
+                with open(local_db, 'r', encoding='utf-8') as f:
+                    translations = json.load(f)
+            except Exception as e:
+                print(f"[!] Error loading local translations: {e}")
+
+        # Fallback to download if local failed or didn't exist
+        if not translations:
+            translations = download_json(VILLAGERS_URL)
+        
         if not translations:
             print("[!] Warning: Translation data unavailable. Reverting to English names.")
 
